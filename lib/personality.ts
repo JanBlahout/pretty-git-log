@@ -52,7 +52,7 @@ export function generateNarrative(data: CodeStoryData): string {
   const prSizeText = avgPRSize < 3 ? "small, focused" : avgPRSize < 8 ? "medium-sized" : "large";
 
   const lines = [
-    `In ${data.year}, you made ${data.totalCommits.toLocaleString()} commits across ${data.totalRepos} repositories.`,
+    `${data.year === 0 ? "All time" : `In ${data.year}`}, you made ${data.totalCommits.toLocaleString()} commits across ${data.totalRepos} repositories.`,
     `Your longest streak was ${data.longestStreak.days} days straight — your most productive month was ${peakMonth}.`,
   ];
 
