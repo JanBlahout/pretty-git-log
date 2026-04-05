@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { CodeStoryData } from "@/types/stats";
@@ -16,9 +17,12 @@ import { ShareCard } from "@/components/dashboard/ShareCard";
 import { generateNarrative } from "@/lib/personality";
 import { formatDate } from "@/utils/format";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { YearTabs } from "@/components/dashboard/YearTabs";
+import { fetchYearStats } from "@/app/actions";
 
 interface Props {
-  data: CodeStoryData;
+  initialData: CodeStoryData;
+  availableYears: number[];
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -34,10 +38,112 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export function DashboardView({ data }: Props) {
+function computeAggregate(allData: CodeStoryData[]): CodeStoryData {
+  const latest = allData[0];
+
+  const sumArray = (key: keyof CodeStoryData) =>
+    (allData[0][key] as number[]).map((_, i) =>
+      allData.reduce((acc, d) => acc + (d[key] as number[])[i], 0)
+    );
+
+  const bestStreak = allData.reduce(
+    (best, d) => (d.longestStreak.days > best.days ? d.longestStreak : best),
+    allData[0].longestStreak
+  );
+
+  const summedCommitsByHour = sumArray("commitsByHour");
+  const peakHour = summedCommitsByHour.indexOf(Math.max(...summedCommitsByHour));
+
+  const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthlyMap: Record<string, { commits: number; prs: number }> = {};
+  for (const yearData of allData) {
+    for (const m of yearData.monthlyActivity) {
+      if (!monthlyMap[m.month]) monthlyMap[m.month] = { commits: 0, prs: 0 };
+      monthlyMap[m.month].commits += m.commits;
+      monthlyMap[m.month].prs += m.prs;
+    }
+  }
+  const monthlyActivity = monthOrder
+    .filter((m) => monthlyMap[m])
+    .map((m) => ({ month: m, ...monthlyMap[m] }));
+
+  return {
+    ...latest,
+    year: 0,
+    totalCommits: allData.reduce((acc, d) => acc + d.totalCommits, 0),
+    totalPRs: allData.reduce((acc, d) => acc + d.totalPRs, 0),
+    totalPRsMerged: allData.reduce((acc, d) => acc + d.totalPRsMerged, 0),
+    totalActiveDays: allData.reduce((acc, d) => acc + d.totalActiveDays, 0),
+    longestStreak: bestStreak,
+    contributionDays: allData.flatMap((d) => d.contributionDays),
+    commitsByHour: summedCommitsByHour,
+    commitsByDay: sumArray("commitsByDay"),
+    commitsByMonth: sumArray("commitsByMonth"),
+    peakHour,
+    monthlyActivity,
+    prevYearCommits: 0,
+    prevYearPRs: 0,
+    prevYearRepos: 0,
+    yoyGrowth: { commitsChange: 0, prsChange: 0, reposChange: 0 },
+  };
+}
+
+export function DashboardView({ initialData, availableYears }: Props) {
+  const [dataByYear, setDataByYear] = useState<Record<number, CodeStoryData>>({
+    [initialData.year]: initialData,
+  });
+  const [activeYear, setActiveYear] = useState<number | "all">(initialData.year);
+  const [loadingYears, setLoadingYears] = useState<Set<number>>(new Set());
+
+  const fetchedYears = availableYears.filter((y) => dataByYear[y]);
+  const allFetched = fetchedYears.length === availableYears.length;
+
+  const handleYearChange = async (year: number | "all") => {
+    if (year === "all") {
+      // Fetch all missing years in parallel
+      const missing = availableYears.filter((y) => !dataByYear[y]);
+      if (missing.length > 0) {
+        setLoadingYears(new Set(missing));
+        const results = await Promise.all(missing.map((y) => fetchYearStats(y)));
+        setDataByYear((prev) => {
+          const next = { ...prev };
+          missing.forEach((y, i) => { next[y] = results[i]; });
+          return next;
+        });
+        setLoadingYears(new Set());
+      }
+      setActiveYear("all");
+      return;
+    }
+
+    setActiveYear(year);
+    if (dataByYear[year]) return;
+
+    setLoadingYears((prev) => new Set(prev).add(year));
+    const yearData = await fetchYearStats(year);
+    setDataByYear((prev) => ({ ...prev, [year]: yearData }));
+    setLoadingYears((prev) => {
+      const next = new Set(prev);
+      next.delete(year);
+      return next;
+    });
+  };
+
+  const sortedFetched = fetchedYears.sort((a, b) => b - a).map((y) => dataByYear[y]);
+
+  const data =
+    activeYear === "all"
+      ? computeAggregate(sortedFetched.length > 0 ? sortedFetched : [initialData])
+      : (dataByYear[activeYear] ?? initialData);
+
+  const isLoading = activeYear !== "all" && loadingYears.has(activeYear as number);
+
   const narrative = generateNarrative(data);
   const memberSince = formatDate(data.createdAt);
   const yearsOnGitHub = new Date().getFullYear() - new Date(data.createdAt).getFullYear();
+  const heroTitle =
+    activeYear === "all" ? `${data.name}'s full story` : `${data.name}'s ${activeYear}`;
+  const navYear = activeYear === "all" ? (allFetched ? "All time" : `${fetchedYears.length} years`) : activeYear;
 
   const keyStats = [
     { label: "Total commits", value: data.totalCommits, sub: `${data.totalActiveDays} active days` },
@@ -53,7 +159,7 @@ export function DashboardView({ data }: Props) {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }}>
-      <DashboardNav login={data.login} year={data.year} />
+      <DashboardNav login={data.login} year={navYear} />
 
       {/* Hero header */}
       <div
@@ -82,13 +188,14 @@ export function DashboardView({ data }: Props) {
             </div>
             <div>
               <motion.h1
+                key={heroTitle}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
                 className="text-4xl md:text-5xl font-bold mb-2"
                 style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}
               >
-                {data.name}&apos;s {data.year}
+                {heroTitle}
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
@@ -105,49 +212,66 @@ export function DashboardView({ data }: Props) {
 
       {/* Dashboard content */}
       <div className="max-w-5xl mx-auto px-6 pb-24 space-y-5">
-        <StatsCards stats={keyStats} />
+        <YearTabs
+          activeYear={activeYear}
+          availableYears={availableYears}
+          loadingYears={loadingYears}
+          onYearChange={handleYearChange}
+        />
 
-        <Section title="Contribution activity">
-          <ContributionHeatmap days={data.contributionDays} year={data.year} />
-        </Section>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-32" style={{ color: "#71717a" }}>
+            <div className="text-sm" style={{ fontFamily: "var(--font-mono)" }}>Loading {activeYear}…</div>
+          </div>
+        ) : (
+          <>
+            <StatsCards stats={keyStats} />
 
-        <Section title="Monthly activity">
-          <ActivityTimeline data={data.monthlyActivity} />
-        </Section>
+            <Section title="Contribution activity">
+              <ContributionHeatmap days={data.contributionDays} year={activeYear === "all" ? 0 : activeYear} />
+            </Section>
 
-        <Section title="Languages">
-          <LanguageBreakdown languages={data.languages} totalRepos={data.totalRepos} />
-        </Section>
+            <Section title="Monthly activity">
+              <ActivityTimeline data={data.monthlyActivity} />
+            </Section>
 
-        <div className="grid md:grid-cols-2 gap-5">
-          <Section title="When you code">
-            <CodingSchedule
-              commitsByHour={data.commitsByHour}
-              commitsByDay={data.commitsByDay}
-              peakHour={data.peakHour}
-              codingPersonality={data.codingPersonality}
-            />
-          </Section>
-          <Section title="Coding personality">
-            <PersonalityTags tags={data.personalityTags} narrative={narrative} />
-          </Section>
-        </div>
+            <Section title="Languages">
+              <LanguageBreakdown languages={data.languages} totalRepos={data.totalRepos} />
+            </Section>
 
-        <Section title="Top repositories">
-          <TopRepos repos={data.topRepos} />
-        </Section>
+            <div className="grid md:grid-cols-2 gap-5">
+              <Section title="When you code">
+                <CodingSchedule
+                  commitsByHour={data.commitsByHour}
+                  commitsByDay={data.commitsByDay}
+                  peakHour={data.peakHour}
+                  codingPersonality={data.codingPersonality}
+                />
+              </Section>
+              <Section title="Coding personality">
+                <PersonalityTags tags={data.personalityTags} narrative={narrative} />
+              </Section>
+            </div>
 
-        <Section title={`${data.year} vs ${data.year - 1}`}>
-          <YearComparison
-            year={data.year}
-            current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
-            prev={{ commits: data.prevYearCommits, prs: data.prevYearPRs, repos: data.prevYearRepos }}
-          />
-        </Section>
+            <Section title="Top repositories">
+              <TopRepos repos={data.topRepos} />
+            </Section>
 
-        <Section title="Share your story">
-          <ShareCard data={data} />
-        </Section>
+            {activeYear !== "all" && (
+              <Section title={`${activeYear} vs ${activeYear - 1}`}>
+                <YearComparison
+                  year={activeYear}
+                  current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
+                  prev={{ commits: data.prevYearCommits, prs: data.prevYearPRs, repos: data.prevYearRepos }}
+                />
+              </Section>
+            )}
+
+            <Section title="Share your story">
+              <ShareCard data={data} />
+            </Section>
+          </>
+        )}
       </div>
     </div>
   );

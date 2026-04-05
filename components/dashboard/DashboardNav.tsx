@@ -4,7 +4,7 @@ import { signOut } from "next-auth/react";
 
 interface Props {
   login: string;
-  year: number;
+  year: number | string;
 }
 
 export function DashboardNav({ login, year }: Props) {

@@ -15,10 +15,16 @@ async function DashboardContent() {
     redirect("/");
   }
 
-  const year = getCurrentYear();
-  const data = await fetchAndComputeStats(session.accessToken, year);
+  const currentYear = getCurrentYear();
+  const data = await fetchAndComputeStats(session.accessToken, currentYear);
 
-  return <DashboardView data={data} />;
+  const joinYear = new Date(data.createdAt).getFullYear();
+  const availableYears = Array.from(
+    { length: currentYear - joinYear + 1 },
+    (_, i) => currentYear - i
+  );
+
+  return <DashboardView initialData={data} availableYears={availableYears} />;
 }
 
 export default function DashboardPage() {
