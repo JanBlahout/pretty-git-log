@@ -12,6 +12,7 @@ const ROWS = 7;
 interface Props {
   days: ContributionDay[];
   year: number;
+  showDayLabels?: boolean;
 }
 
 interface TooltipState {
@@ -20,7 +21,7 @@ interface TooltipState {
   y: number;
 }
 
-export function ContributionHeatmap({ days, year }: Props) {
+export function ContributionHeatmap({ days, year, showDayLabels = true }: Props) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const byDate = Object.fromEntries(days.map((d) => [d.date, d]));
@@ -89,7 +90,7 @@ export function ContributionHeatmap({ days, year }: Props) {
           >
             {["", "Mon", "", "Wed", "", "Fri", ""].map((label, i) => (
               <div key={i} style={{ height: CELL, fontSize: 10, color: "#71717a", lineHeight: `${CELL}px`, fontFamily: "var(--font-mono)" }}>
-                {label}
+                {showDayLabels ? label : ""}
               </div>
             ))}
           </div>

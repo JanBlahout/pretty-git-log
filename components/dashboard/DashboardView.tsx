@@ -18,6 +18,7 @@ import { generateNarrative } from "@/lib/personality";
 import { formatDate } from "@/utils/format";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { YearTabs } from "@/components/dashboard/YearTabs";
+import { MultiYearHeatmap } from "@/components/dashboard/MultiYearHeatmap";
 import { fetchYearStats } from "@/app/actions";
 
 interface Props {
@@ -228,7 +229,13 @@ export function DashboardView({ initialData, availableYears }: Props) {
             <StatsCards stats={keyStats} />
 
             <Section title="Contribution activity">
-              <ContributionHeatmap days={data.contributionDays} year={activeYear === "all" ? 0 : activeYear} />
+              {activeYear === "all" ? (
+                <MultiYearHeatmap
+                  years={sortedFetched.map((d) => ({ year: d.year, days: d.contributionDays }))}
+                />
+              ) : (
+                <ContributionHeatmap days={data.contributionDays} year={activeYear} />
+              )}
             </Section>
 
             <Section title="Monthly activity">
