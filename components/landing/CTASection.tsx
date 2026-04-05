@@ -10,7 +10,7 @@ export function CTASection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl font-bold mb-4" style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}>

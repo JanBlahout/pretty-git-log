@@ -24,14 +24,8 @@ interface Props {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <ScrollReveal>
-      <div
-        className="rounded-2xl p-6 md:p-8"
-        style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}
-      >
-        <h2
-          className="text-lg font-semibold mb-6"
-          style={{ color: "#71717a", fontFamily: "var(--font-mono)", textTransform: "uppercase", letterSpacing: "0.1em", fontSize: 12 }}
-        >
+      <div className="rounded-2xl p-8" style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}>
+        <h2 className="text-xs font-semibold uppercase tracking-widest mb-6" style={{ color: "#71717a", fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
           {title}
         </h2>
         {children}
@@ -60,23 +54,22 @@ export function DashboardView({ data }: Props) {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }}>
       <DashboardNav login={data.login} year={data.year} />
+
       {/* Hero header */}
       <div
-        className="relative pt-24 pb-16 px-6"
-        style={{
-          background: "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(139,92,246,0.1) 0%, transparent 70%)",
-        }}
+        className="pt-24 pb-16 px-6"
+        style={{ background: "radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139,92,246,0.12) 0%, transparent 70%)" }}
       >
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col md:flex-row items-center md:items-start gap-6"
+            className="flex items-center gap-6 flex-wrap"
           >
-            <div className="relative">
+            <div className="relative flex-shrink-0">
               <div
-                className="absolute inset-0 rounded-full blur-lg opacity-40"
-                style={{ backgroundColor: "#8b5cf6", transform: "scale(0.9)" }}
+                className="absolute inset-0 rounded-full opacity-40"
+                style={{ backgroundColor: "#8b5cf6", filter: "blur(16px)", transform: "scale(0.85)" }}
               />
               <Image
                 src={data.avatarUrl}
@@ -87,7 +80,7 @@ export function DashboardView({ data }: Props) {
                 style={{ border: "2px solid rgba(139,92,246,0.5)" }}
               />
             </div>
-            <div className="text-center md:text-left">
+            <div>
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -97,41 +90,36 @@ export function DashboardView({ data }: Props) {
               >
                 {data.name}&apos;s {data.year}
               </motion.h1>
-              <motion.div
+              <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
                 style={{ color: "#71717a" }}
               >
                 @{data.login} · on GitHub since {memberSince} · {yearsOnGitHub}y
-              </motion.div>
+              </motion.p>
             </div>
           </motion.div>
         </div>
       </div>
 
       {/* Dashboard content */}
-      <div className="max-w-5xl mx-auto px-6 pb-24 space-y-6">
-        {/* Key metrics */}
+      <div className="max-w-5xl mx-auto px-6 pb-24 space-y-5">
         <StatsCards stats={keyStats} />
 
-        {/* Contribution heatmap */}
         <Section title="Contribution activity">
           <ContributionHeatmap days={data.contributionDays} year={data.year} />
         </Section>
 
-        {/* Monthly timeline */}
         <Section title="Monthly activity">
           <ActivityTimeline data={data.monthlyActivity} />
         </Section>
 
-        {/* Language breakdown */}
         <Section title="Languages">
           <LanguageBreakdown languages={data.languages} totalRepos={data.totalRepos} />
         </Section>
 
-        {/* Two column: coding schedule + personality */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-5">
           <Section title="When you code">
             <CodingSchedule
               commitsByHour={data.commitsByHour}
@@ -145,12 +133,10 @@ export function DashboardView({ data }: Props) {
           </Section>
         </div>
 
-        {/* Top repos */}
         <Section title="Top repositories">
           <TopRepos repos={data.topRepos} />
         </Section>
 
-        {/* Year comparison */}
         <Section title={`${data.year} vs ${data.year - 1}`}>
           <YearComparison
             year={data.year}
@@ -159,7 +145,6 @@ export function DashboardView({ data }: Props) {
           />
         </Section>
 
-        {/* Share */}
         <Section title="Share your story">
           <ShareCard data={data} />
         </Section>
