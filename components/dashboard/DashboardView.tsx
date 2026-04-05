@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { CodeStoryData } from "@/types/stats";
@@ -97,6 +97,15 @@ export function DashboardView({ initialData, availableYears }: Props) {
 
   const fetchedYears = availableYears.filter((y) => dataByYear[y]);
   const allFetched = fetchedYears.length === availableYears.length;
+
+  // Background-fetch the previous year on mount so the comparison section is ready
+  useEffect(() => {
+    const prevYear = initialData.year - 1;
+    if (!availableYears.includes(prevYear)) return;
+    fetchYearStats(prevYear).then((data) =>
+      setDataByYear((prev) => ({ ...prev, [prevYear]: data }))
+    );
+  }, []);
 
   const handleYearChange = async (year: number | "all") => {
     if (year === "all") {
