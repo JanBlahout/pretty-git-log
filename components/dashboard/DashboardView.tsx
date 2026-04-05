@@ -28,8 +28,8 @@ interface Props {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <ScrollReveal>
-      <div className="rounded-2xl p-8" style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}>
-        <h2 className="text-xs font-semibold uppercase tracking-widest mb-6" style={{ color: "#71717a", fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
+      <div className="rounded-2xl p-8 bg-surface border border-border">
+        <h2 className="text-xs font-semibold uppercase tracking-widest mb-6 text-text-secondary font-mono">
           {title}
         </h2>
         {children}
@@ -175,7 +175,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }}>
+    <div className="min-h-screen bg-background">
       <DashboardNav login={data.login} year={navYear} />
 
       {/* Hero header */}
@@ -191,16 +191,14 @@ export function DashboardView({ initialData, availableYears }: Props) {
           >
             <div className="relative flex-shrink-0">
               <div
-                className="absolute inset-0 rounded-full opacity-40"
-                style={{ backgroundColor: "#8b5cf6", filter: "blur(16px)", transform: "scale(0.85)" }}
+                className="absolute inset-0 rounded-full opacity-40 bg-brand blur-[16px] scale-[85%]"
               />
               <Image
                 src={data.avatarUrl}
                 alt={data.login}
                 width={96}
                 height={96}
-                className="relative rounded-full"
-                style={{ border: "2px solid rgba(139,92,246,0.5)" }}
+                className="relative rounded-full border-2 border-brand/50"
               />
             </div>
             <div>
@@ -209,8 +207,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-4xl md:text-5xl font-bold mb-2"
-                style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}
+                className="text-4xl md:text-5xl font-bold mb-2 text-text-primary font-mono"
               >
                 {heroTitle}
               </motion.h1>
@@ -218,7 +215,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                style={{ color: "#71717a" }}
+                className="text-text-secondary"
               >
                 @{data.login} · on GitHub since {memberSince} · {yearsOnGitHub}y
               </motion.p>
@@ -237,8 +234,8 @@ export function DashboardView({ initialData, availableYears }: Props) {
         />
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-32" style={{ color: "#71717a" }}>
-            <div className="text-sm" style={{ fontFamily: "var(--font-mono)" }}>Loading {activeYear}…</div>
+          <div className="flex items-center justify-center py-32 text-text-secondary">
+            <div className="text-sm font-mono">Loading {activeYear}…</div>
           </div>
         ) : (
           <>

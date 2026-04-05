@@ -62,8 +62,7 @@ export function TopRepos({ repos }: Props) {
             href={`https://github.com/${repo.fullName}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-white/5"
-            style={{ border: "1px solid #2a2a2e" }}
+            className="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-white/5 border border-border"
           >
             <div className="flex items-center gap-3">
               <span
@@ -71,15 +70,15 @@ export function TopRepos({ repos }: Props) {
                 style={{ backgroundColor: getLanguageColor(repo.language) }}
               />
               <div>
-                <div style={{ color: "#e4e4e7", fontSize: 14, fontWeight: 500 }}>{repo.name}</div>
+                <div className="text-text-primary text-sm font-medium">{repo.name}</div>
                 {repo.description && (
-                  <div style={{ color: "#71717a", fontSize: 12 }} className="truncate max-w-xs">
+                  <div className="truncate max-w-xs text-text-secondary text-xs">
                     {repo.description}
                   </div>
                 )}
               </div>
             </div>
-            <div style={{ color: "#71717a", fontSize: 13, fontFamily: "var(--font-mono)", flexShrink: 0 }}>
+            <div className="text-text-secondary text-[13px] font-mono shrink-0">
               ★ {repo.stars.toLocaleString()}
             </div>
           </a>

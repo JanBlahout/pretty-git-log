@@ -13,20 +13,16 @@ export function CTASection() {
           viewport={{ once: true, amount: 0.1 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-4xl font-bold mb-4" style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}>
+          <h2 className="text-4xl font-bold mb-4 text-text-primary font-mono">
             Ready to see your story?
           </h2>
-          <p className="text-lg mb-8" style={{ color: "#71717a" }}>
+          <p className="text-lg mb-8 text-text-secondary">
             Takes 30 seconds. No email required. Just your GitHub account.
           </p>
           <button
             onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-            className="px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-            style={{
-              backgroundColor: "#8b5cf6",
-              color: "#ffffff",
-              boxShadow: "0 0 40px rgba(139,92,246,0.2)",
-            }}
+            className="px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer bg-brand text-white"
+            style={{ boxShadow: "0 0 40px rgba(139,92,246,0.2)" }}
           >
             Connect GitHub — it&apos;s free
           </button>

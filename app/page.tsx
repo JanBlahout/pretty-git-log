@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Hero } from "@/components/landing/Hero";
 import { CTASection } from "@/components/landing/CTASection";
+import { LandingNav } from "@/components/landing/LandingNav";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -14,7 +15,8 @@ async function AuthRedirect() {
 
 export default function LandingPage() {
   return (
-    <main style={{ backgroundColor: "#0a0a0b" }}>
+    <main className="bg-background">
+      <LandingNav />
       <Suspense>
         <AuthRedirect />
       </Suspense>
@@ -24,8 +26,7 @@ export default function LandingPage() {
       <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <h2
-            className="text-3xl font-bold text-center mb-16"
-            style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}
+            className="text-3xl font-bold text-center mb-16 text-text-primary font-mono"
           >
             Everything about your year in code
           </h2>
@@ -33,17 +34,15 @@ export default function LandingPage() {
             {FEATURES.map((f) => (
               <div
                 key={f.title}
-                className="rounded-2xl p-6"
-                style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}
+                className="rounded-2xl p-6 bg-surface border border-border"
               >
                 <div className="text-3xl mb-4">{f.icon}</div>
                 <h3
-                  className="text-lg font-semibold mb-2"
-                  style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}
+                  className="text-lg font-semibold mb-2 text-text-primary font-mono"
                 >
                   {f.title}
                 </h3>
-                <p style={{ color: "#71717a", lineHeight: 1.6 }}>{f.desc}</p>
+                <p className="text-text-secondary leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -52,7 +51,7 @@ export default function LandingPage() {
 
       <CTASection />
 
-      <footer className="py-8 text-center" style={{ color: "#52525b", borderTop: "1px solid #2a2a2e" }}>
+      <footer className="py-8 text-center text-text-muted border-t border-border">
         <p>CodeStory · codestory.dev · Free forever</p>
       </footer>
     </main>

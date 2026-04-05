@@ -23,13 +23,13 @@ export function LanguageBreakdown({ languages, totalRepos }: Props) {
             transition={{ delay: i * 0.08 }}
           >
             <div className="flex justify-between text-sm mb-1">
-              <span style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}>
+              <span className="text-text-primary font-mono">
                 <span className="inline-block w-2.5 h-2.5 rounded-full mr-2" style={{ backgroundColor: lang.color }} />
                 {lang.name}
               </span>
-              <span style={{ color: "#71717a", fontFamily: "var(--font-mono)" }}>{lang.percentage}%</span>
+              <span className="text-text-secondary font-mono">{lang.percentage}%</span>
             </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#2a2a2e" }}>
+            <div className="h-2 rounded-full overflow-hidden bg-border">
               <motion.div
                 className="h-full rounded-full"
                 style={{ backgroundColor: lang.color }}
@@ -44,7 +44,7 @@ export function LanguageBreakdown({ languages, totalRepos }: Props) {
       </div>
 
       {/* Donut chart */}
-      <div className="relative flex-shrink-0" style={{ width: 200, height: 200 }}>
+      <div className="relative flex-shrink-0 w-[200px] h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -75,10 +75,10 @@ export function LanguageBreakdown({ languages, totalRepos }: Props) {
         <div
           className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none"
         >
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 24, fontWeight: 700, color: "#e4e4e7" }}>
+          <div className="font-mono text-2xl font-bold text-text-primary">
             {totalRepos}
           </div>
-          <div style={{ fontSize: 11, color: "#71717a" }}>repos</div>
+          <div className="text-[11px] text-text-secondary">repos</div>
         </div>
       </div>
     </div>
