@@ -9,6 +9,20 @@ interface Props {
   prev: { commits: number; prs: number; repos: number };
 }
 
+function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; fill: string }[]; label?: string }) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div style={{ backgroundColor: "#2a2a2e", border: "1px solid #3f3f46", borderRadius: 8, fontSize: 12, padding: "8px 12px" }}>
+      <p style={{ color: "#e4e4e7", marginBottom: 6, fontWeight: 600 }}>{label}</p>
+      {payload.map((item) => (
+        <p key={item.name} style={{ color: item.fill === "#8b5cf6" ? "#a78bfa" : "#a1a1aa", margin: "2px 0" }}>
+          {item.name}: {item.value}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 export function YearComparison({ year, current, prev }: Props) {
   const metrics = [
     { label: "Commits", cur: current.commits, prv: prev.commits },
@@ -46,16 +60,7 @@ export function YearComparison({ year, current, prev }: Props) {
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "#1c1c1f",
-              border: "1px solid #2a2a2e",
-              borderRadius: 8,
-              fontSize: 12,
-              color: "#e4e4e7",
-            }}
-            cursor={{ fill: "rgba(255,255,255,0.03)" }}
-          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(255,255,255,0.05)" }} />
           <Bar dataKey={String(year - 1)} fill="#2a2a2e" radius={[4, 4, 0, 0]} name={String(year - 1)} />
           <Bar dataKey={String(year)} fill="#8b5cf6" radius={[4, 4, 0, 0]} name={String(year)}>
             <LabelList

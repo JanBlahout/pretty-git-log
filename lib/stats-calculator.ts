@@ -70,12 +70,12 @@ export async function fetchAndComputeStats(token: string, year: number): Promise
       color: getLanguageColor(name),
     }));
 
-  // Time pattern analysis from PushEvents
+  // Time pattern analysis
   const commitsByHour = new Array<number>(24).fill(0);
-  const commitsByDay = new Array<number>(7).fill(0);
   const commitsByMonth = new Array<number>(12).fill(0);
   let totalCommitsFromEvents = 0;
 
+  // Hour data comes from PushEvents (last 90 days only — GitHub API limitation)
   for (const event of events) {
     if (event.type !== "PushEvent") continue;
     const date = new Date(event.created_at);
@@ -83,8 +83,16 @@ export async function fetchAndComputeStats(token: string, year: number): Promise
     const count = event.payload.size ?? event.payload.commits?.length ?? 1;
     totalCommitsFromEvents += count;
     commitsByHour[date.getHours()]! += count;
-    commitsByDay[date.getDay()]! += count;
     commitsByMonth[date.getMonth()]! += count;
+  }
+
+  // Day-of-week data from contribution calendar (full year, not limited to 90 days)
+  const commitsByDay = new Array<number>(7).fill(0);
+  for (const day of contributionDays) {
+    if (day.count > 0) {
+      const dow = new Date(day.date + "T12:00:00").getDay();
+      commitsByDay[dow]! += day.count;
+    }
   }
 
   // Use contribution calendar total (more accurate than events which only cover 90 days)
@@ -126,7 +134,7 @@ export async function fetchAndComputeStats(token: string, year: number): Promise
     totalCommits,
     totalPRs: prs.length,
     totalPRsMerged,
-    totalRepos: repos.length,
+    totalRepos: repos.filter((r) => r.pushed_at?.startsWith(String(year))).length,
     totalStars: repos.reduce((s, r) => s + r.stargazers_count, 0),
     longestStreak: longest,
     currentStreak: current,

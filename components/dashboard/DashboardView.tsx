@@ -9,7 +9,6 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { ContributionHeatmap } from "@/components/dashboard/ContributionHeatmap";
 import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline";
 import { LanguageBreakdown } from "@/components/dashboard/LanguageBreakdown";
-import { CodingSchedule } from "@/components/dashboard/CodingSchedule";
 import { PersonalityTags } from "@/components/dashboard/PersonalityTags";
 import { TopRepos } from "@/components/dashboard/TopRepos";
 import { YearComparison } from "@/components/dashboard/YearComparison";
@@ -118,14 +117,22 @@ export function DashboardView({ initialData, availableYears }: Props) {
     }
 
     setActiveYear(year);
-    if (dataByYear[year]) return;
 
-    setLoadingYears((prev) => new Set(prev).add(year));
-    const yearData = await fetchYearStats(year);
-    setDataByYear((prev) => ({ ...prev, [year]: yearData }));
+    const toFetch = [year, year - 1].filter(
+      (y) => availableYears.includes(y) && !dataByYear[y]
+    );
+    if (toFetch.length === 0) return;
+
+    setLoadingYears((prev) => new Set([...prev, ...toFetch]));
+    const results = await Promise.all(toFetch.map((y) => fetchYearStats(y)));
+    setDataByYear((prev) => {
+      const next = { ...prev };
+      toFetch.forEach((y, i) => { next[y] = results[i]!; });
+      return next;
+    });
     setLoadingYears((prev) => {
       const next = new Set(prev);
-      next.delete(year);
+      toFetch.forEach((y) => next.delete(y));
       return next;
     });
   };
@@ -155,7 +162,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
       formatter: (n: number) => `${n}d`,
       sub: `Current: ${data.currentStreak}d`,
     },
-    { label: "Total stars", value: data.totalStars, sub: `${data.totalRepos} repos` },
+    { label: "Total stars", value: data.totalStars, sub: `${data.totalRepos} active repos` },
   ];
 
   return (
@@ -246,19 +253,9 @@ export function DashboardView({ initialData, availableYears }: Props) {
               <LanguageBreakdown languages={data.languages} totalRepos={data.totalRepos} />
             </Section>
 
-            <div className="grid md:grid-cols-2 gap-5">
-              <Section title="When you code">
-                <CodingSchedule
-                  commitsByHour={data.commitsByHour}
-                  commitsByDay={data.commitsByDay}
-                  peakHour={data.peakHour}
-                  codingPersonality={data.codingPersonality}
-                />
-              </Section>
-              <Section title="Coding personality">
-                <PersonalityTags tags={data.personalityTags} narrative={narrative} />
-              </Section>
-            </div>
+            <Section title="Coding personality">
+              <PersonalityTags tags={data.personalityTags} narrative={narrative} />
+            </Section>
 
             <Section title="Top repositories">
               <TopRepos repos={data.topRepos} />
@@ -266,11 +263,19 @@ export function DashboardView({ initialData, availableYears }: Props) {
 
             {activeYear !== "all" && (
               <Section title={`${activeYear} vs ${activeYear - 1}`}>
-                <YearComparison
-                  year={activeYear}
-                  current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
-                  prev={{ commits: data.prevYearCommits, prs: data.prevYearPRs, repos: data.prevYearRepos }}
-                />
+                {(() => {
+                  const prevData = dataByYear[activeYear - 1];
+                  return (
+                    <YearComparison
+                      year={activeYear}
+                      current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
+                      prev={prevData
+                        ? { commits: prevData.totalCommits, prs: prevData.totalPRs, repos: prevData.totalRepos }
+                        : { commits: 0, prs: 0, repos: 0 }
+                      }
+                    />
+                  );
+                })()}
               </Section>
             )}
 
