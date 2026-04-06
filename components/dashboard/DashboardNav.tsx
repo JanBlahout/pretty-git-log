@@ -1,6 +1,7 @@
 "use client";
 
 import { signOut } from "next-auth/react";
+import { CompareInput } from "@/components/compare/CompareInput";
 
 interface Props {
   login: string;
@@ -10,9 +11,9 @@ interface Props {
 export function DashboardNav({ login, year }: Props) {
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 bg-background/85 backdrop-blur-md border-b border-border"
+      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 bg-background/85 backdrop-blur-md border-b border-border gap-4"
     >
-      <div className="font-mono font-bold text-text-primary">
+      <div className="font-mono font-bold text-text-primary flex-shrink-0">
         <a href="/" className="hover:opacity-80 transition-opacity">
           Code<span className="text-brand">Story</span>
         </a>
@@ -20,7 +21,8 @@ export function DashboardNav({ login, year }: Props) {
           @{login} · {year}
         </span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap justify-end">
+        <CompareInput myLogin={login} />
         <a
           href={`/u/${login}`}
           className="text-sm px-4 py-2 rounded-lg transition-colors hover:bg-white/5 text-text-secondary border border-border"

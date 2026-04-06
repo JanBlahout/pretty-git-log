@@ -61,13 +61,27 @@ async function ProfileContent({ params }: Props) {
   );
 
   const boundFetchYear = fetchPublicYearStats.bind(null, username);
+  const compareHref = session?.login
+    ? `/compare/${session.login}/${username}`
+    : null;
 
   return (
-    <DashboardView
-      initialData={data}
-      availableYears={availableYears}
-      fetchYear={boundFetchYear}
-    />
+    <>
+      <DashboardView
+        initialData={data}
+        availableYears={availableYears}
+        fetchYear={boundFetchYear}
+      />
+      {compareHref && (
+        <a
+          href={compareHref}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-2xl font-semibold text-sm shadow-lg transition-all hover:scale-105 active:scale-95 bg-brand text-white border border-brand/50"
+          style={{ boxShadow: "0 0 24px rgba(139,92,246,0.35)" }}
+        >
+          ⚔️ Compare with me
+        </a>
+      )}
+    </>
   );
 }
 
