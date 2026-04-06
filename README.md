@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CodeStory
 
-## Getting Started
+A beautiful visual narrative of your coding journey. Connect your GitHub account and get a shareable story of your commits, streaks, languages, pull requests, and coding personality — by year or all time.
 
-First, run the development server:
+**Live at [codestory.dev](https://codestory.dev)**
+
+---
+
+## Features
+
+- **Contribution heatmap** — full-year calendar view of your activity
+- **Streaks & active days** — longest and current coding streaks
+- **Language breakdown** — top languages by bytes across your repos
+- **Monthly activity** — commits and PRs charted by month
+- **Coding personality** — developer archetype tags derived from your data
+- **Top repositories** — your most-starred projects
+- **Year-over-year comparison** — commits, PRs, and repos vs. the previous year
+- **Year switcher** — jump between any year since you joined GitHub, or view all time
+- **Public profiles** — shareable `/u/[username]` page visible to anyone
+- **Share card** — download a PNG summary card with customizable color themes
+- **Privacy first** — no database; your data is fetched live from GitHub's API
+
+---
+
+## Tech stack
+
+- [Next.js 16](https://nextjs.org) (App Router, Server Components, `"use cache"`)
+- [NextAuth v5](https://authjs.dev) — GitHub OAuth
+- [Tailwind CSS v4](https://tailwindcss.com)
+- [Recharts](https://recharts.org) — charts
+- [Framer Motion](https://www.framer.com/motion/) — animations
+- [html-to-image](https://github.com/bubkoo/html-to-image) — share card PNG export
+
+---
+
+## Getting started
+
+### 1. Clone and install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/JanBlahout/codestory
+cd codestory
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Set up environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Fill in `.env.local`:
 
-## Learn More
+| Variable | Description |
+|---|---|
+| `GITHUB_CLIENT_ID` | OAuth App client ID |
+| `GITHUB_CLIENT_SECRET` | OAuth App client secret |
+| `NEXTAUTH_SECRET` | Random secret (`openssl rand -base64 32`) |
+| `NEXTAUTH_URL` | Base URL (`http://localhost:3000` for local) |
+| `GITHUB_TOKEN` | PAT for public profiles (`read:user` + `public_repo` scopes) |
 
-To learn more about Next.js, take a look at the following resources:
+**Create a GitHub OAuth App:**
+1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App
+2. Set Authorization callback URL to `http://localhost:3000/api/auth/callback/github`
+3. Copy the Client ID and Client Secret into `.env.local`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Create a GitHub PAT** (for public `/u/[username]` profiles):
+1. Go to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)
+2. Generate a token with `read:user` and `public_repo` scopes
+3. Paste it as `GITHUB_TOKEN`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Run locally
 
-## Deploy on Vercel
+```bash
+pnpm dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Open [http://localhost:3000](http://localhost:3000).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Deployment
+
+The easiest way to deploy is [Vercel](https://vercel.com). Add all environment variables from `.env.example` in your project settings, then push to `main`.
+
+For the OAuth App callback URL in production, update it to `https://yourdomain.com/api/auth/callback/github`.
+
+---
+
+## Project structure
+
+```
+app/
+  page.tsx              # Landing page
+  dashboard/page.tsx    # Authenticated dashboard
+  u/[username]/page.tsx # Public profile
+  actions.ts            # Server actions for lazy year fetching
+components/
+  dashboard/            # Dashboard UI components
+  landing/              # Landing page components
+  ui/                   # Shared UI primitives
+lib/
+  github.ts             # GitHub REST API calls
+  github-graphql.ts     # GitHub GraphQL (contribution calendar)
+  stats-calculator.ts   # Data aggregation logic
+  personality.ts        # Coding personality tags + narrative
+types/
+  stats.ts              # CodeStoryData type
+  github.ts             # GitHub API response types
+```
