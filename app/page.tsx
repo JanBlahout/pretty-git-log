@@ -1,25 +1,11 @@
-import { Suspense } from "react";
 import { Hero } from "@/components/landing/Hero";
 import { CTASection } from "@/components/landing/CTASection";
 import { LandingNav } from "@/components/landing/LandingNav";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
-
-// Auth check wrapped in Suspense — request-time data must live inside a Suspense boundary
-// when cacheComponents is enabled, per Next.js 16 requirements.
-async function AuthRedirect() {
-  const session = await auth();
-  if (session) redirect("/dashboard");
-  return null;
-}
 
 export default function LandingPage() {
   return (
     <main className="bg-background">
       <LandingNav />
-      <Suspense>
-        <AuthRedirect />
-      </Suspense>
       <Hero />
 
       {/* Features */}
