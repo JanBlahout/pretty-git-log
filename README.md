@@ -17,6 +17,7 @@ A beautiful visual narrative of your coding journey. Connect your GitHub account
 - **Year-over-year comparison** — commits, PRs, and repos vs. the previous year
 - **Year switcher** — jump between any year since you joined GitHub, or view all time
 - **Public profiles** — shareable `/u/[username]` page visible to anyone
+- **Developer comparison** — compare up to 4 GitHub users side by side at `/compare/user1/user2/user3`
 - **Share card** — download a PNG summary card with customizable color themes
 - **Privacy first** — no database; your data is fetched live from GitHub's API
 
@@ -91,20 +92,43 @@ For the OAuth App callback URL in production, update it to `https://yourdomain.c
 
 ```
 app/
-  page.tsx              # Landing page
-  dashboard/page.tsx    # Authenticated dashboard
-  u/[username]/page.tsx # Public profile
-  actions.ts            # Server actions for lazy year fetching
+  page.tsx                    # Landing page
+  dashboard/page.tsx          # Authenticated dashboard
+  u/[username]/page.tsx       # Public profile (uses GITHUB_TOKEN PAT)
+  compare/[...users]/page.tsx # Side-by-side developer comparison (up to 4 users)
+  actions.ts                  # Server actions for lazy year fetching
 components/
-  dashboard/            # Dashboard UI components
-  landing/              # Landing page components
-  ui/                   # Shared UI primitives
+  dashboard/                  # Dashboard UI components
+  compare/                    # Comparison page components
+  landing/                    # Landing page components
+  ui/                         # Shared UI primitives
 lib/
-  github.ts             # GitHub REST API calls
-  github-graphql.ts     # GitHub GraphQL (contribution calendar)
-  stats-calculator.ts   # Data aggregation logic
-  personality.ts        # Coding personality tags + narrative
+  github.ts                   # GitHub REST API calls (authenticated + public)
+  github-graphql.ts           # GitHub GraphQL (contribution calendar)
+  stats-calculator.ts         # Data aggregation logic (own + public stats)
+  personality.ts              # Coding personality tags + narrative
 types/
-  stats.ts              # CodeStoryData type
-  github.ts             # GitHub API response types
+  stats.ts                    # CodeStoryData type
+  github.ts                   # GitHub API response types
 ```
+
+---
+
+## Developer comparison
+
+Visit `/compare/user1/user2` (or add up to 4 usernames) to compare developers side by side.
+
+```
+/compare/JanBlahout/torvalds
+/compare/JanBlahout/gaearon/tj
+```
+
+**What's shown:**
+- Stats table with winner highlighted per category (commits, PRs, streak, active days, stars, top language)
+- Monthly commits line chart (overlaid per user) for a selected year
+- Annual commits bar chart when "All time" is selected
+- Language breakdown and coding personality tags per user
+
+**Year picker:** shows all years from the earliest join date across all users. Users who joined after the selected year show `—` for that column.
+
+Uses `GITHUB_TOKEN` (public data only — same limitation as public profiles).
