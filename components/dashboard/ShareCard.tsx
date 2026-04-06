@@ -14,6 +14,9 @@ export function ShareCard({ data }: Props) {
   const [downloading, setDownloading] = useState(false);
 
   const profileUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/u/${data.login}`;
+  const isAllTime = data.year === 0;
+  const joinYear = new Date(data.createdAt).getFullYear();
+  const yearLabel = isAllTime ? `since ${joinYear}` : String(data.year);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(profileUrl);
@@ -26,10 +29,10 @@ export function ShareCard({ data }: Props) {
     try {
       const el = document.getElementById("share-card-preview");
       if (!el) return;
-      const png = await toPng(el, { pixelRatio: 2 });
+      const png = await toPng(el, { pixelRatio: 2, width: 600, height: el.scrollHeight });
       const a = document.createElement("a");
       a.href = png;
-      a.download = `codestory-${data.login}-${data.year}.png`;
+      a.download = `codestory-${data.login}-${isAllTime ? "all-time" : data.year}.png`;
       a.click();
     } catch (err) {
       console.error(err);
@@ -39,25 +42,24 @@ export function ShareCard({ data }: Props) {
   };
 
   const tweetText = encodeURIComponent(
-    `My ${data.year} in code: ${data.totalCommits.toLocaleString()} commits, ${data.totalPRs} PRs, ${data.longestStreak.days}d streak 🚀 ${profileUrl} via @codestorydev`
+    `My coding story ${isAllTime ? `since ${joinYear}` : `in ${data.year}`}: ${data.totalCommits.toLocaleString()} commits, ${data.totalPRs} PRs, ${data.longestStreak.days}d streak 🚀 ${profileUrl} via @codestorydev`
   );
 
   return (
     <div className="space-y-8">
-      {/* Preview card */}
+      {/* Preview card — flex wrapper handles centering, NOT the captured element */}
+      <div className="flex justify-center">
       <div
         id="share-card-preview"
-        className="rounded-2xl p-8 max-w-2xl mx-auto border border-border"
-        style={{
-          background: "linear-gradient(135deg, #141416 0%, #1c1c1f 100%)",
-        }}
+        className="rounded-2xl p-8 border border-border overflow-hidden bg-[linear-gradient(135deg,#141416_0%,#1c1c1f_100%)]"
+        style={{ width: 600 }}
       >
         <div className="flex items-center gap-4 mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.avatarUrl} alt={data.login} className="w-14 h-14 rounded-full" />
           <div>
             <div className="text-text-primary font-bold text-[18px] font-mono">
-              {data.name}&apos;s {data.year} in code
+              {data.name}&apos;s story {yearLabel}
             </div>
             <div className="text-text-secondary text-sm">@{data.login} · codestory.dev</div>
           </div>
@@ -74,7 +76,7 @@ export function ShareCard({ data }: Props) {
               <div className="font-mono font-bold text-[22px] text-text-primary">
                 {s.value}
               </div>
-              <div className="text-[11px] text-text-secondary">{s.label}</div>
+              <div className="text-[11px] text-text-secondary mt-1">{s.label}</div>
             </div>
           ))}
         </div>
@@ -91,6 +93,7 @@ export function ShareCard({ data }: Props) {
         </div>
 
         <div className="text-text-muted text-xs text-center">codestory.dev</div>
+      </div>
       </div>
 
       {/* Action buttons */}
