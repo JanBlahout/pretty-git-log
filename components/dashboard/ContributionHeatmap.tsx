@@ -56,19 +56,16 @@ export function ContributionHeatmap({ days, year, showDayLabels = true }: Props)
   const totalWidth = cols.length * (CELL + GAP);
 
   return (
-    <div style={{ position: "relative", overflowX: "auto" }}>
-      <div style={{ display: "inline-block", paddingLeft: 32 }}>
+    <div className="relative overflow-x-auto">
+      <div className="inline-block pl-8">
         {/* Month labels */}
-        <div style={{ position: "relative", height: 20, width: totalWidth, marginBottom: 4 }}>
+        <div className="relative h-5 mb-1" style={{ width: totalWidth }}>
           {monthLabels.map(({ label, col }) => (
             <span
               key={label}
+              className="absolute text-[11px] text-text-secondary font-mono"
               style={{
-                position: "absolute",
                 left: col * (CELL + GAP),
-                fontSize: 11,
-                color: "#71717a",
-                fontFamily: "var(--font-mono)",
               }}
             >
               {label}
@@ -76,27 +73,21 @@ export function ContributionHeatmap({ days, year, showDayLabels = true }: Props)
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: GAP, position: "relative" }}>
+        <div className="flex relative" style={{ gap: GAP }}>
           {/* Day labels */}
           <div
-            style={{
-              position: "absolute",
-              left: -32,
-              top: 0,
-              display: "flex",
-              flexDirection: "column",
-              gap: GAP,
-            }}
+            className="absolute -left-8 top-0 flex flex-col"
+            style={{ gap: GAP }}
           >
             {["", "Mon", "", "Wed", "", "Fri", ""].map((label, i) => (
-              <div key={i} style={{ height: CELL, fontSize: 10, color: "#71717a", lineHeight: `${CELL}px`, fontFamily: "var(--font-mono)" }}>
+              <div key={i} className="text-[10px] text-text-secondary font-mono" style={{ height: CELL, lineHeight: `${CELL}px` }}>
                 {showDayLabels ? label : ""}
               </div>
             ))}
           </div>
 
           {cols.map((col, ci) => (
-            <div key={ci} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+            <div key={ci} className="flex flex-col" style={{ gap: GAP }}>
               {Array.from({ length: ROWS }).map((_, ri) => {
                 const day = col[ri] ?? null;
                 return (
@@ -131,20 +122,10 @@ export function ContributionHeatmap({ days, year, showDayLabels = true }: Props)
 
       {tooltip && (
         <div
+          className="fixed -translate-x-1/2 -translate-y-full bg-surface-2 border border-border text-text-primary text-[12px] px-[10px] py-1 rounded-lg z-50 whitespace-nowrap pointer-events-none"
           style={{
-            position: "fixed",
             left: tooltip.x,
             top: tooltip.y - 8,
-            transform: "translate(-50%, -100%)",
-            backgroundColor: "#1c1c1f",
-            border: "1px solid #2a2a2e",
-            color: "#e4e4e7",
-            fontSize: 12,
-            padding: "4px 10px",
-            borderRadius: 8,
-            zIndex: 50,
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
           }}
         >
           {tooltip.text}

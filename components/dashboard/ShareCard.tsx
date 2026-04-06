@@ -47,20 +47,19 @@ export function ShareCard({ data }: Props) {
       {/* Preview card */}
       <div
         id="share-card-preview"
-        className="rounded-2xl p-8 max-w-2xl mx-auto"
+        className="rounded-2xl p-8 max-w-2xl mx-auto border border-border"
         style={{
           background: "linear-gradient(135deg, #141416 0%, #1c1c1f 100%)",
-          border: "1px solid #2a2a2e",
         }}
       >
         <div className="flex items-center gap-4 mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={data.avatarUrl} alt={data.login} className="w-14 h-14 rounded-full" />
           <div>
-            <div style={{ color: "#e4e4e7", fontWeight: 700, fontSize: 18, fontFamily: "var(--font-mono)" }}>
+            <div className="text-text-primary font-bold text-[18px] font-mono">
               {data.name}&apos;s {data.year} in code
             </div>
-            <div style={{ color: "#71717a", fontSize: 14 }}>@{data.login} · codestory.dev</div>
+            <div className="text-text-secondary text-sm">@{data.login} · codestory.dev</div>
           </div>
         </div>
 
@@ -71,11 +70,11 @@ export function ShareCard({ data }: Props) {
             { label: "streak", value: `${data.longestStreak.days}d` },
             { label: "active days", value: String(data.totalActiveDays) },
           ].map((s) => (
-            <div key={s.label} className="rounded-xl p-3 text-center" style={{ backgroundColor: "#0a0a0b" }}>
-              <div style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 22, color: "#e4e4e7" }}>
+            <div key={s.label} className="rounded-xl p-3 text-center bg-background">
+              <div className="font-mono font-bold text-[22px] text-text-primary">
                 {s.value}
               </div>
-              <div style={{ fontSize: 11, color: "#71717a" }}>{s.label}</div>
+              <div className="text-[11px] text-text-secondary">{s.label}</div>
             </div>
           ))}
         </div>
@@ -84,23 +83,21 @@ export function ShareCard({ data }: Props) {
           {data.personalityTags.map((tag) => (
             <span
               key={tag}
-              className="px-3 py-1 rounded-full text-xs"
-              style={{ backgroundColor: "rgba(139,92,246,0.15)", color: "#a78bfa", border: "1px solid rgba(139,92,246,0.3)" }}
+              className="px-3 py-1 rounded-full text-xs bg-brand/[15%] text-brand-light border border-brand/30"
             >
               {tag}
             </span>
           ))}
         </div>
 
-        <div style={{ color: "#52525b", fontSize: 12, textAlign: "center" }}>codestory.dev</div>
+        <div className="text-text-muted text-xs text-center">codestory.dev</div>
       </div>
 
       {/* Action buttons */}
       <div className="flex flex-wrap gap-3 justify-center">
         <button
           onClick={copyLink}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer"
-          style={{ backgroundColor: "#1c1c1f", border: "1px solid #2a2a2e", color: "#e4e4e7" }}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer bg-surface-2 border border-border text-text-primary"
         >
           {copied ? "✓ Copied!" : "🔗 Copy link"}
         </button>
@@ -108,8 +105,7 @@ export function ShareCard({ data }: Props) {
         <button
           onClick={downloadImage}
           disabled={downloading}
-          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
-          style={{ backgroundColor: "#1c1c1f", border: "1px solid #2a2a2e", color: "#e4e4e7" }}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50 bg-surface-2 border border-border text-text-primary"
         >
           {downloading ? "Generating..." : "⬇️ Download image"}
         </button>
@@ -118,8 +114,7 @@ export function ShareCard({ data }: Props) {
           href={`https://x.com/intent/tweet?text=${tweetText}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95"
-          style={{ backgroundColor: "#000", color: "#fff", border: "1px solid #333" }}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all hover:scale-105 active:scale-95 bg-black text-white border border-neutral-700"
         >
           𝕏 Post to X
         </a>

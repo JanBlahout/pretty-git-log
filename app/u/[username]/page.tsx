@@ -18,26 +18,23 @@ async function ProfileContent({ params }: Props) {
 
   return (
     <main
-      className="min-h-screen flex items-center justify-center px-6"
-      style={{ backgroundColor: "#0a0a0b" }}
+      className="min-h-screen flex items-center justify-center px-6 bg-background"
     >
       <div className="text-center max-w-md">
         <div
-          className="text-6xl font-bold mb-4"
-          style={{ fontFamily: "var(--font-mono)", color: "#e4e4e7" }}
+          className="text-6xl font-bold mb-4 font-mono text-text-primary"
         >
-          Code<span style={{ color: "#8b5cf6" }}>Story</span>
+          Code<span className="text-brand">Story</span>
         </div>
-        <p className="text-xl mb-2" style={{ color: "#e4e4e7" }}>
+        <p className="text-xl mb-2 text-text-primary">
           @{username}&apos;s coding story
         </p>
-        <p className="mb-8" style={{ color: "#71717a" }}>
+        <p className="mb-8 text-text-secondary">
           Sign in with GitHub to view the full story.
         </p>
         <a
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold"
-          style={{ backgroundColor: "#8b5cf6", color: "#fff" }}
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-brand text-white"
         >
           Generate your own CodeStory
         </a>
@@ -50,8 +47,8 @@ export default function PublicProfilePage({ params }: Props) {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#0a0a0b" }}>
-          <div style={{ color: "#71717a" }}>Loading...</div>
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="text-text-secondary">Loading...</div>
         </div>
       }
     >

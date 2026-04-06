@@ -20,14 +20,9 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm mb-8"
-          style={{
-            backgroundColor: "rgba(139,92,246,0.1)",
-            border: "1px solid rgba(139,92,246,0.3)",
-            color: "#a78bfa",
-          }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm mb-8 bg-brand/10 border border-brand/30 text-brand-light"
         >
-          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" style={{ backgroundColor: "#8b5cf6" }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
           Your year in code, beautifully told
         </motion.div>
 
@@ -35,19 +30,17 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-6xl md:text-7xl font-bold tracking-tight mb-6"
-          style={{ fontFamily: "var(--font-mono)", color: "#e4e4e7" }}
+          className="text-6xl md:text-7xl font-bold tracking-tight mb-6 font-mono text-text-primary"
         >
           Code
-          <span style={{ color: "#8b5cf6" }}>Story</span>
+          <span className="text-brand">Story</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl md:text-2xl mb-4"
-          style={{ color: "#71717a" }}
+          className="text-xl md:text-2xl mb-4 text-text-secondary"
         >
           Spotify Wrapped — for developers.
         </motion.p>
@@ -56,8 +49,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-lg mb-12 max-w-2xl mx-auto"
-          style={{ color: "#52525b" }}
+          className="text-lg mb-12 max-w-2xl mx-auto text-text-muted"
         >
           Connect your GitHub account and get a beautiful, shareable visual narrative of your coding journey — commits, streaks, languages, and more.
         </motion.p>
@@ -70,12 +62,8 @@ export function Hero() {
         >
           <button
             onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-            className="flex items-center gap-3 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
-            style={{
-              backgroundColor: "#8b5cf6",
-              color: "#ffffff",
-              boxShadow: "0 0 40px rgba(139,92,246,0.3)",
-            }}
+            className="flex items-center gap-3 px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer bg-brand text-white"
+            style={{ boxShadow: "0 0 40px rgba(139,92,246,0.3)" }}
           >
             <GitHubIcon />
             Generate my CodeStory
@@ -95,13 +83,12 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.9 + i * 0.1 }}
-              className="rounded-xl p-4 text-center"
-              style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}
+              className="rounded-xl p-4 text-center bg-surface border border-border"
             >
-              <div className="text-3xl font-bold mb-1" style={{ fontFamily: "var(--font-mono)", color: "#e4e4e7" }}>
+              <div className="text-3xl font-bold mb-1 font-mono text-text-primary">
                 {s.value}
               </div>
-              <div className="text-sm" style={{ color: "#71717a" }}>
+              <div className="text-sm text-text-secondary">
                 {s.label}
               </div>
             </motion.div>

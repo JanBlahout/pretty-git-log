@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { CodeStoryData } from "@/types/stats";
@@ -9,7 +9,6 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { ContributionHeatmap } from "@/components/dashboard/ContributionHeatmap";
 import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline";
 import { LanguageBreakdown } from "@/components/dashboard/LanguageBreakdown";
-import { CodingSchedule } from "@/components/dashboard/CodingSchedule";
 import { PersonalityTags } from "@/components/dashboard/PersonalityTags";
 import { TopRepos } from "@/components/dashboard/TopRepos";
 import { YearComparison } from "@/components/dashboard/YearComparison";
@@ -29,8 +28,8 @@ interface Props {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <ScrollReveal>
-      <div className="rounded-2xl p-8" style={{ backgroundColor: "#141416", border: "1px solid #2a2a2e" }}>
-        <h2 className="text-xs font-semibold uppercase tracking-widest mb-6" style={{ color: "#71717a", fontFamily: "var(--font-mono)", letterSpacing: "0.1em" }}>
+      <div className="rounded-2xl p-8 bg-surface border border-border">
+        <h2 className="text-xs font-semibold uppercase tracking-widest mb-6 text-text-secondary font-mono">
           {title}
         </h2>
         {children}
@@ -99,6 +98,15 @@ export function DashboardView({ initialData, availableYears }: Props) {
   const fetchedYears = availableYears.filter((y) => dataByYear[y]);
   const allFetched = fetchedYears.length === availableYears.length;
 
+  // Background-fetch the previous year on mount so the comparison section is ready
+  useEffect(() => {
+    const prevYear = initialData.year - 1;
+    if (!availableYears.includes(prevYear)) return;
+    fetchYearStats(prevYear).then((data) =>
+      setDataByYear((prev) => ({ ...prev, [prevYear]: data }))
+    );
+  }, []);
+
   const handleYearChange = async (year: number | "all") => {
     if (year === "all") {
       // Fetch all missing years in parallel
@@ -118,14 +126,22 @@ export function DashboardView({ initialData, availableYears }: Props) {
     }
 
     setActiveYear(year);
-    if (dataByYear[year]) return;
 
-    setLoadingYears((prev) => new Set(prev).add(year));
-    const yearData = await fetchYearStats(year);
-    setDataByYear((prev) => ({ ...prev, [year]: yearData }));
+    const toFetch = [year, year - 1].filter(
+      (y) => availableYears.includes(y) && !dataByYear[y]
+    );
+    if (toFetch.length === 0) return;
+
+    setLoadingYears((prev) => new Set([...prev, ...toFetch]));
+    const results = await Promise.all(toFetch.map((y) => fetchYearStats(y)));
+    setDataByYear((prev) => {
+      const next = { ...prev };
+      toFetch.forEach((y, i) => { next[y] = results[i]!; });
+      return next;
+    });
     setLoadingYears((prev) => {
       const next = new Set(prev);
-      next.delete(year);
+      toFetch.forEach((y) => next.delete(y));
       return next;
     });
   };
@@ -155,11 +171,11 @@ export function DashboardView({ initialData, availableYears }: Props) {
       formatter: (n: number) => `${n}d`,
       sub: `Current: ${data.currentStreak}d`,
     },
-    { label: "Total stars", value: data.totalStars, sub: `${data.totalRepos} repos` },
+    { label: "Total stars", value: data.totalStars, sub: `${data.totalRepos} active repos` },
   ];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0b" }}>
+    <div className="min-h-screen bg-background">
       <DashboardNav login={data.login} year={navYear} />
 
       {/* Hero header */}
@@ -175,16 +191,14 @@ export function DashboardView({ initialData, availableYears }: Props) {
           >
             <div className="relative flex-shrink-0">
               <div
-                className="absolute inset-0 rounded-full opacity-40"
-                style={{ backgroundColor: "#8b5cf6", filter: "blur(16px)", transform: "scale(0.85)" }}
+                className="absolute inset-0 rounded-full opacity-40 bg-brand blur-[16px] scale-[85%]"
               />
               <Image
                 src={data.avatarUrl}
                 alt={data.login}
                 width={96}
                 height={96}
-                className="relative rounded-full"
-                style={{ border: "2px solid rgba(139,92,246,0.5)" }}
+                className="relative rounded-full border-2 border-brand/50"
               />
             </div>
             <div>
@@ -193,8 +207,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-4xl md:text-5xl font-bold mb-2"
-                style={{ color: "#e4e4e7", fontFamily: "var(--font-mono)" }}
+                className="text-4xl md:text-5xl font-bold mb-2 text-text-primary font-mono"
               >
                 {heroTitle}
               </motion.h1>
@@ -202,7 +215,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                style={{ color: "#71717a" }}
+                className="text-text-secondary"
               >
                 @{data.login} · on GitHub since {memberSince} · {yearsOnGitHub}y
               </motion.p>
@@ -221,8 +234,8 @@ export function DashboardView({ initialData, availableYears }: Props) {
         />
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-32" style={{ color: "#71717a" }}>
-            <div className="text-sm" style={{ fontFamily: "var(--font-mono)" }}>Loading {activeYear}…</div>
+          <div className="flex items-center justify-center py-32 text-text-secondary">
+            <div className="text-sm font-mono">Loading {activeYear}…</div>
           </div>
         ) : (
           <>
@@ -246,19 +259,9 @@ export function DashboardView({ initialData, availableYears }: Props) {
               <LanguageBreakdown languages={data.languages} totalRepos={data.totalRepos} />
             </Section>
 
-            <div className="grid md:grid-cols-2 gap-5">
-              <Section title="When you code">
-                <CodingSchedule
-                  commitsByHour={data.commitsByHour}
-                  commitsByDay={data.commitsByDay}
-                  peakHour={data.peakHour}
-                  codingPersonality={data.codingPersonality}
-                />
-              </Section>
-              <Section title="Coding personality">
-                <PersonalityTags tags={data.personalityTags} narrative={narrative} />
-              </Section>
-            </div>
+            <Section title="Coding personality">
+              <PersonalityTags tags={data.personalityTags} narrative={narrative} />
+            </Section>
 
             <Section title="Top repositories">
               <TopRepos repos={data.topRepos} />
@@ -266,11 +269,19 @@ export function DashboardView({ initialData, availableYears }: Props) {
 
             {activeYear !== "all" && (
               <Section title={`${activeYear} vs ${activeYear - 1}`}>
-                <YearComparison
-                  year={activeYear}
-                  current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
-                  prev={{ commits: data.prevYearCommits, prs: data.prevYearPRs, repos: data.prevYearRepos }}
-                />
+                {(() => {
+                  const prevData = dataByYear[activeYear - 1];
+                  return (
+                    <YearComparison
+                      year={activeYear}
+                      current={{ commits: data.totalCommits, prs: data.totalPRs, repos: data.totalRepos }}
+                      prev={prevData
+                        ? { commits: prevData.totalCommits, prs: prevData.totalPRs, repos: prevData.totalRepos }
+                        : { commits: 0, prs: 0, repos: 0 }
+                      }
+                    />
+                  );
+                })()}
               </Section>
             )}
 

@@ -13,8 +13,7 @@ export function MultiYearHeatmap({ years }: Props) {
       {years.map(({ year, days }, i) => (
         <div key={year}>
           <div
-            className="text-xs font-semibold mb-2"
-            style={{ color: "#71717a", fontFamily: "var(--font-mono)" }}
+            className="text-xs font-semibold mb-2 text-text-secondary font-mono"
           >
             {year}
           </div>

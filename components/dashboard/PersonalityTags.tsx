@@ -34,7 +34,7 @@ export function PersonalityTags({ tags, narrative }: Props) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.6 }}
-        style={{ color: "#71717a", lineHeight: 1.7, fontSize: 16 }}
+        className="text-text-secondary leading-[1.7] text-base"
       >
         {narrative}
       </motion.p>
