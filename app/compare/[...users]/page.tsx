@@ -3,6 +3,7 @@ import { fetchAndComputePublicStats } from "@/lib/stats-calculator";
 import { CompareView } from "@/components/compare/CompareView";
 import { getCurrentYear } from "@/utils/date";
 import type { CodeStoryData } from "@/types/stats";
+import Link from "next/link";
 
 interface Props {
   params: Promise<{ users: string[] }>;
@@ -11,7 +12,10 @@ interface Props {
 async function CompareContent({ params }: Props) {
   const { users: rawUsers } = await params;
 
-  const usernames = [...new Set(rawUsers.map((u) => u.toLowerCase()))].slice(0, 4);
+  const usernames = [...new Set(rawUsers.map((u) => u.toLowerCase()))].slice(
+    0,
+    4,
+  );
 
   if (usernames.length < 2) {
     return (
@@ -35,7 +39,7 @@ async function CompareContent({ params }: Props) {
   const currentYear = getCurrentYear();
 
   const results = await Promise.allSettled(
-    usernames.map((u) => fetchAndComputePublicStats(u, currentYear))
+    usernames.map((u) => fetchAndComputePublicStats(u, currentYear)),
   );
 
   const initialData: Record<string, CodeStoryData> = {};
@@ -54,13 +58,18 @@ async function CompareContent({ params }: Props) {
           <div className="text-6xl font-bold mb-4 font-mono text-text-primary">
             Code<span className="text-brand">Story</span>
           </div>
-          <p className="text-xl mb-2 text-text-primary">Couldn&apos;t load profiles</p>
+          <p className="text-xl mb-2 text-text-primary">
+            Couldn&apos;t load profiles
+          </p>
           <p className="text-text-secondary mb-8">
             At least 2 valid public GitHub usernames are required.
           </p>
-          <a href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-brand text-white">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-brand text-white"
+          >
             Go home
-          </a>
+          </Link>
         </div>
       </main>
     );

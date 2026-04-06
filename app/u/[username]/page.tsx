@@ -1,10 +1,14 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { fetchAndComputeStats, fetchAndComputePublicStats } from "@/lib/stats-calculator";
+import {
+  fetchAndComputeStats,
+  fetchAndComputePublicStats,
+} from "@/lib/stats-calculator";
 import { fetchPublicYearStats } from "@/app/actions";
 import { DashboardView } from "@/components/dashboard/DashboardView";
 import { getCurrentYear } from "@/utils/date";
+import Link from "next/link";
 
 interface Props {
   params: Promise<{ username: string }>;
@@ -30,7 +34,7 @@ async function ProfileContent({ params }: Props) {
     const joinYear = new Date(data.createdAt).getFullYear();
     const availableYears = Array.from(
       { length: currentYear - joinYear + 1 },
-      (_, i) => currentYear - i
+      (_, i) => currentYear - i,
     );
     return <DashboardView initialData={data} availableYears={availableYears} />;
   }
@@ -42,11 +46,18 @@ async function ProfileContent({ params }: Props) {
           <div className="text-6xl font-bold mb-4 font-mono text-text-primary">
             Code<span className="text-brand">Story</span>
           </div>
-          <p className="text-xl mb-2 text-text-primary">@{username}&apos;s coding story</p>
-          <p className="mb-8 text-text-secondary">Public profiles are not enabled on this instance.</p>
-          <a href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-brand text-white">
+          <p className="text-xl mb-2 text-text-primary">
+            @{username}&apos;s coding story
+          </p>
+          <p className="mb-8 text-text-secondary">
+            Public profiles are not enabled on this instance.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold bg-brand text-white"
+          >
             Generate your own CodeStory
-          </a>
+          </Link>
         </div>
       </main>
     );
@@ -57,7 +68,7 @@ async function ProfileContent({ params }: Props) {
   const joinYear = new Date(data.createdAt).getFullYear();
   const availableYears = Array.from(
     { length: currentYear - joinYear + 1 },
-    (_, i) => currentYear - i
+    (_, i) => currentYear - i,
   );
 
   const boundFetchYear = fetchPublicYearStats.bind(null, username);
