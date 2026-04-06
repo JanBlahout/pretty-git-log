@@ -37,8 +37,17 @@ export async function fetchUser(token: string): Promise<GitHubUser> {
   return ghFetch<GitHubUser>("/user", token);
 }
 
+export async function fetchPublicUser(token: string, username: string): Promise<GitHubUser> {
+  return ghFetch<GitHubUser>(`/users/${username}`, token);
+}
+
 export async function fetchRepos(token: string): Promise<GitHubRepo[]> {
   const repos = await ghFetchPaginated<GitHubRepo>("/user/repos?sort=pushed&type=all", token, 5);
+  return repos.filter((r) => !r.fork).slice(0, 50);
+}
+
+export async function fetchPublicRepos(token: string, username: string): Promise<GitHubRepo[]> {
+  const repos = await ghFetchPaginated<GitHubRepo>(`/users/${username}/repos?sort=pushed`, token, 5);
   return repos.filter((r) => !r.fork).slice(0, 50);
 }
 

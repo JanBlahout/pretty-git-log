@@ -23,6 +23,7 @@ import { fetchYearStats } from "@/app/actions";
 interface Props {
   initialData: CodeStoryData;
   availableYears: number[];
+  fetchYear?: (year: number) => Promise<CodeStoryData>;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -74,6 +75,7 @@ function computeAggregate(allData: CodeStoryData[]): CodeStoryData {
     totalPRs: allData.reduce((acc, d) => acc + d.totalPRs, 0),
     totalPRsMerged: allData.reduce((acc, d) => acc + d.totalPRsMerged, 0),
     totalActiveDays: allData.reduce((acc, d) => acc + d.totalActiveDays, 0),
+    totalRepos: Math.max(...allData.map((d) => d.totalRepos)),
     longestStreak: bestStreak,
     contributionDays: allData.flatMap((d) => d.contributionDays),
     commitsByHour: summedCommitsByHour,
@@ -88,7 +90,7 @@ function computeAggregate(allData: CodeStoryData[]): CodeStoryData {
   };
 }
 
-export function DashboardView({ initialData, availableYears }: Props) {
+export function DashboardView({ initialData, availableYears, fetchYear = fetchYearStats }: Props) {
   const [dataByYear, setDataByYear] = useState<Record<number, CodeStoryData>>({
     [initialData.year]: initialData,
   });
@@ -102,7 +104,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
   useEffect(() => {
     const prevYear = initialData.year - 1;
     if (!availableYears.includes(prevYear)) return;
-    fetchYearStats(prevYear).then((data) =>
+    fetchYear(prevYear).then((data) =>
       setDataByYear((prev) => ({ ...prev, [prevYear]: data }))
     );
   }, []);
@@ -113,7 +115,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
       const missing = availableYears.filter((y) => !dataByYear[y]);
       if (missing.length > 0) {
         setLoadingYears(new Set(missing));
-        const results = await Promise.all(missing.map((y) => fetchYearStats(y)));
+        const results = await Promise.all(missing.map((y) => fetchYear(y)));
         setDataByYear((prev) => {
           const next = { ...prev };
           missing.forEach((y, i) => { next[y] = results[i]; });
@@ -133,7 +135,7 @@ export function DashboardView({ initialData, availableYears }: Props) {
     if (toFetch.length === 0) return;
 
     setLoadingYears((prev) => new Set([...prev, ...toFetch]));
-    const results = await Promise.all(toFetch.map((y) => fetchYearStats(y)));
+    const results = await Promise.all(toFetch.map((y) => fetchYear(y)));
     setDataByYear((prev) => {
       const next = { ...prev };
       toFetch.forEach((y, i) => { next[y] = results[i]!; });

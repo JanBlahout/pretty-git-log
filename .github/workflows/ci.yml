@@ -35,3 +35,4 @@ jobs:
           GITHUB_CLIENT_ID: placeholder
           GITHUB_CLIENT_SECRET: placeholder
           AUTH_SECRET: placeholder
+          GITHUB_TOKEN: placeholder
